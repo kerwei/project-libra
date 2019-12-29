@@ -92,7 +92,7 @@
               <td>{{ each.name }}</td>
               <td>{{ each.author }}</td>
               <td>{{ each.updated_at.strftime('%Y-%m-%d') }}</td>
-              <td><button class="fa fa-trash btn btrn-secondary" type="submit" formmethod="post" formaction="/book/delete/{{ each.id }}"></button></td>
+              <td><form method="post" action="/book/delete/{{ each.id }}"><button class="fa fa-trash btn btn-secondary" type="submit"></button></form></td>
             </tr>
           {% endfor %}
         </table>
