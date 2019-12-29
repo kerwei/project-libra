@@ -11,7 +11,7 @@ from database_setup import Base, Book
 
 
 # DB
-engine = create_engine('postgresql+psycopg2://libra:passw0rdg@localhost/catalogue')
+engine = create_engine('postgresql+psycopg2://libra:passw0rd@localhost/catalogue')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
