@@ -8,6 +8,7 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <title>My Library</title>
   </head>
@@ -91,7 +92,7 @@
               <td>{{ each.name }}</td>
               <td>{{ each.author }}</td>
               <td>{{ each.updated_at.strftime('%Y-%m-%d') }}</td>
-              <td></td>
+              <td><button class="fa fa-trash btn btrn-secondary" type="submit" formmethod="post" formaction="/book/delete/{{ each.id }}"></button></td>
             </tr>
           {% endfor %}
         </table>

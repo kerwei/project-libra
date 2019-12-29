@@ -31,7 +31,7 @@ def addBook():
     return redirect(url_for('homePage'))
 
 # Deletes a customer
-@app.route('/book/delete/<string:item_id>', methods=['DELETE'])
+@app.route('/book/delete/<string:item_id>', methods=['POST'])
 def deleteBook(item_id):
     if item_id.isdigit():
         item_id = int(item_id)
