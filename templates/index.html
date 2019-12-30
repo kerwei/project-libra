@@ -60,25 +60,25 @@
   <body class="holygrail">
     <div class="holygrail-body no-gutters">
       <div class="container-fluid mx-3 py-5 bg-light">
-        <form method="post" action="/book/add">
+        <form method="post" action="/book/add" id="book-form">
           <div class="form-group pl-sm-5">
             <label class="control-label">Title</label>
-            <input type="text" name="name" placeholder="To Kill A Mockingbird"></input>
+            <input id="input-title" type="text" name="name" placeholder="To Kill A Mockingbird"></input>
           </div>
           <div class="form-group pl-sm-5">
             <label class="control-label">Author</label>
-            <input type="text" name="author" placeholder="Harper Lee"></input>
+            <input id="input-author" type="text" name="author" placeholder="Harper Lee"></input>
           </div>
           <hr>
           <div class="form-group pl-sm-5">
-            <button type="submit" class="btn btn-primary">Add</button>
+            <button id="book-add" type="submit" class="btn btn-primary">Add</button>
           </div>
       </form>	
       </div>
     </div>    
     <div class="holygrail-body no-gutters">
       <div class="container-fluid mx-3 py-5 text-inverse">
-        <table class="table table-striped">
+        <table class="table table-striped" id="book-table">
           <tr>
             <th scope="col">ID</th>
             <th scope="col">Name</th>
@@ -92,7 +92,7 @@
               <td>{{ each.name }}</td>
               <td>{{ each.author }}</td>
               <td>{{ each.updated_at.strftime('%Y-%m-%d') }}</td>
-              <td><form method="post" action="/book/delete/{{ each.id }}"><button class="fa fa-trash btn btn-secondary" type="submit"></button></form></td>
+              <td><form id="form-delete" method="post" action="/book/delete/{{ each.id }}"><button id="book-delete-{{ each.id }}" class="fa fa-trash btn btn-secondary" type="submit"></button></form></td>
             </tr>
           {% endfor %}
         </table>
