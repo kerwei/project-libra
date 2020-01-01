@@ -23,7 +23,7 @@ class Book(Base):
 
     # Serialization function for JSON API requests
     @property
-    def serialize(self):
+    def attribs(self):
         return {
             'name': self.name,
             'author': self.author,
