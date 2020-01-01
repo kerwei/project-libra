@@ -1,9 +1,10 @@
+import abc
+import requests
+
 from datetime import datetime
-
 from flask import Flask
-from flask import request, render_template, redirect, url_for
+from flask import request, render_template, redirect, make_response, url_for, send_from_directory
 from flask import session as login_session
-
 from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import sessionmaker
 
@@ -18,10 +19,10 @@ session = DBSession()
 # Starts the application and register the blueprints
 app = Flask(__name__)
 
+
 # Adds a customer
 @app.route('/book/add', methods=['POST'])
 def addBook():
-    # data = parseUrlEntry(new_entry)
     # Creates the record and saves it to the database
     if request.form:
         new_item = Book(name=request.form['name'], author=request.form['author'])
@@ -47,6 +48,13 @@ def deleteBook(item_id):
 
     return redirect(url_for('homePage'))
 
+# Download CSV
+@app.route('/book/download/<string:filetype>', methods=['GET'])
+def downloadCSV(filetype):
+    response = requests.get(f'http://localhost:2020/book/getall/{filetype}')
+
+    return send_from_directory(app.config['FILE_FOLDER'], response.text, as_attachment=True)
+
 # Home
 @app.route('/', methods=['GET'])
 def homePage():
@@ -56,5 +64,6 @@ def homePage():
 
 if __name__ == '__main__':
     app.secret_key = 'my_secret_key'
+    app.config['FILE_FOLDER'] = 'output/'
     app.debug = True
     app.run(host='0.0.0.0', port=5000)
