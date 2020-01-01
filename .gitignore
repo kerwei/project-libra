@@ -1,3 +1,5 @@
 virtualenv/*
 *__pycache__*
 *.pyc
+output/*
+
