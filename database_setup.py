@@ -1,6 +1,6 @@
 import datetime
 
-from sqlalchemy import Column, Integer, String, Date, DateTime
+from sqlalchemy import Column, Integer, Unicode, Date, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
@@ -15,8 +15,8 @@ class Book(Base):
     __tablename__ = 'books'
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(1000), nullable=False)
-    author = Column(String(250), nullable=False)
+    name = Column(Unicode(1000), nullable=False)
+    author = Column(Unicode(250), nullable=False)
     updated_at = Column(DateTime,
         nullable=False,
         default=datetime.datetime.now())
