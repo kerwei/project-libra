@@ -26,16 +26,14 @@ class FunctionalTest(unittest.TestCase):
     def tearDown(self):
         self.browser.quit()
 
-    def waitfor_row_listtable(self, row_text):
+    def waitfor_table_update(self, tblid):
         starttime = time.time()
 
         while True:
             try:
-                table = self.browser.find_element_by_class_name('table table-striped')
-                rows = table.find_elements_by_tag_name('tr')
-                self.assertIn(row_text, [row.text for row in rows])
-                return
-            except (AssertionError, WebDriverException) as e:
+                self.browser.find_element_by_id(tblid)
+                return True
+            except (AssertionError, WebDriverException):
                 if time.time() - starttime > MAXWAIT:
-                    raise e
+                    return False
                 time.sleep(0.5)
