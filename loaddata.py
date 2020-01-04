@@ -1,4 +1,5 @@
 import csv
+import string
 
 from datetime import datetime
 from sqlalchemy import create_engine
@@ -8,16 +9,10 @@ from database_setup import Base, Book
 
 engine = create_engine('postgresql+psycopg2://libra:passw0rd@localhost/catalogue')
 Base.metadata.bind = engine
-
 DBSession = sessionmaker(bind=engine)
-# A DBSession() instance establishes all conversations with the database
-# and represents a "staging zone" for all the objects loaded into the
-# database session object. Any change made against the objects in the
-# session won't be persisted into the database until you call
-# session.commit(). If you're not happy about the changes, you can
-# revert all of them back to the last commit by calling
-# session.rollback()
 session = DBSession()
+
+ALPHANUM = set(string.ascii_letters).union(set([str(i) for i in range(10)]))
 
 # sample data
 mockdata = {}
@@ -27,13 +22,27 @@ with open('sample.csv', 'r', encoding='utf-8') as f:
         mockdata[i] = {'name':row[0], 'author':row[1]}
 
 def load_data(data):
+    """
+    Persist into postgresql
+    """
     for book in add_entries(data):
         session.add(book)
 
 def add_entries(data):
+    """
+    Create book objects for each title - author
+    """
     for row in data.values():
-        book = Book(name=row['name'], author=row['author'])
-        yield book
+        print(row['name'].split())
+        if is_alphanum(row['name']):
+            book = Book(name=row['name'], author=row['author'])
+            yield book
+
+def is_alphanum(sentence):
+    """
+    Attempts to filter out only English title by checking for alphanum characters
+    """
+    return all([c in ALPHANUM for word in sentence.split() for c in word])
 
 
 if __name__ == '__main__':
