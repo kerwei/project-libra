@@ -1,6 +1,7 @@
 import abc
 import requests
 
+from collections import namedtuple, defaultdict
 from datetime import datetime
 from flask import Flask
 from flask import request, render_template, redirect, make_response, url_for, send_from_directory
@@ -8,7 +9,7 @@ from flask import session as login_session
 from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Base, Book, BookGenreXref
+from database_setup import Base, Book, BookGenreXref, Genre
 
 
 # DB
@@ -19,6 +20,8 @@ session = DBSession()
 # Starts the application and register the blueprints
 app = Flask(__name__)
 
+# Composite book object
+BookGenre = namedtuple('BookGenre', ['id', 'name', 'author', 'updated_at', 'genre'])
 
 # Adds a book
 @app.route('/book/add', methods=['POST'])
@@ -67,8 +70,50 @@ def downloadCSV(filetype):
 # Home
 @app.route('/', methods=['GET'])
 def homePage():
-    books = session.query(Book).order_by(Book.updated_at.desc()).limit(10).all()
-    return render_template('index.html', books=books)
+    statement = \
+        '''
+            SELECT
+                b.id,
+                b.name,
+                b.author,
+                b.updated_at,
+                g.name
+            FROM
+                public."Book" b
+            INNER JOIN public."BookGenreXref" bx ON b.id = bx.bookid
+            INNER JOIN public."Genre" g ON bx.genreid = g.id
+            ORDER BY b.updated_at DESC
+            LIMIT 30;
+        '''
+    sql = text(statement)
+    res = engine.execute(sql)
+
+    # Collapse all genres of a title into a single row
+    books = list()
+    for r_id, r_name, r_author, r_updated_at, r_genre in res:
+        for i, book in enumerate(books):
+            # To ensure no duplicates in the list,
+            # pop the BookGenre object if it's already created, update and then add it back
+            if book.id == r_id:
+                upd_book = books.pop(i)
+
+                upd_genre = ', '.join([upd_book.genre, r_genre])
+                upd_book = upd_book._replace(genre=upd_genre)
+                books.append(upd_book)
+                break
+        else:
+            # Append a new object if the title has not been created yet
+            books.append(BookGenre(
+                id = r_id,
+                name = r_name,
+                author = r_author,
+                updated_at = r_updated_at,
+                genre = r_genre
+            ))
+
+    # TODO: I intend to show only 10 titles in the table. 
+    # This should be handled more elegantly from the top instead of slicing
+    return render_template('index.html', books=books[:10])
 
 
 if __name__ == '__main__':

@@ -75,14 +75,18 @@
           </div>
       </form>	
       </div>
-    </div>    
+    </div>
+    <div class="container-fluid mx-3 pt-5">
+      <p>The table view is currently set to show titles where genre can be successfully assigned. If the engine fails to guess the genre, it is excluded from this table.</p>
+    </div>
     <div class="holygrail-body no-gutters">
-      <div class="container-fluid mx-3 py-5 text-inverse">
+      <div class="container-fluid mx-3 pb-5 text-inverse">
         <table class="table table-striped" id="book-table">
           <tr>
             <th scope="col">ID</th>
             <th scope="col">Name</th>
             <th scope="col">Author</th>
+            <th scope="col">Genre</th>
             <th scope="col">Added</th>
             <th scope="col">Delete</th>
           </tr>
@@ -91,6 +95,7 @@
               <td>{{ each.id }}</td>
               <td>{{ each.name }}</td>
               <td>{{ each.author }}</td>
+              <td>{{ each.genre }}</td>
               <td>{{ each.updated_at.strftime('%Y-%m-%d') }}</td>
               <td><form id="form-delete" method="post" action="/book/delete/{{ each.id }}"><button id="book-delete-{{ each.id }}" class="fa fa-trash btn btn-secondary" type="submit"></button></form></td>
             </tr>
