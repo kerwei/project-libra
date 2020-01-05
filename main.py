@@ -8,7 +8,7 @@ from flask import session as login_session
 from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Base, Book
+from database_setup import Base, Book, BookGenreXref
 
 
 # DB
@@ -20,7 +20,7 @@ session = DBSession()
 app = Flask(__name__)
 
 
-# Adds a customer
+# Adds a book
 @app.route('/book/add', methods=['POST'])
 def addBook():
     # Creates the record and saves it to the database
@@ -29,9 +29,11 @@ def addBook():
         session.add(new_item)
         session.commit()
 
+    requests.get(f'http://localhost:2020/book/genre/{new_item.id}')
+
     return redirect(url_for('homePage'))
 
-# Deletes a customer
+# Deletes a book
 @app.route('/book/delete/<string:item_id>', methods=['POST'])
 def deleteBook(item_id):
     if item_id.isdigit():
@@ -39,16 +41,23 @@ def deleteBook(item_id):
     else:
         raise TypeError("Id must be integer")
 
-    try:
-        item = session.query(Book).filter_by(id=item_id).one()
+    # Get all associative book-genre relationships
+    xref = session.query(BookGenreXref).filter(BookGenreXref.bookid == item_id).all()
+    if xref:
+        for xr in xref:
+            session.delete(xr)
+
+    # Delete the book
+    item = session.query(Book).filter(Book.id == item_id).one()
+    if item:
         session.delete(item)
+
+    if any([xref, item]):
         session.commit()
-    except:
-        pass
 
     return redirect(url_for('homePage'))
 
-# Download CSV
+# Download all records as CSV
 @app.route('/book/download/<string:filetype>', methods=['GET'])
 def downloadCSV(filetype):
     response = requests.get(f'http://localhost:2020/book/getall/{filetype}')

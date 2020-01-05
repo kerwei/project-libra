@@ -8,6 +8,7 @@ from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import sessionmaker
 
 from database_setup import Base, Book, Genre, BookGenreXref
+import langtools
 
 
 # DB
@@ -18,6 +19,13 @@ session = DBSession()
 
 # Starts the application and register the blueprints
 app = Flask(__name__)
+
+# CONSTANTS
+THRESHOLD = 0.3
+# Creates a dictionary of genre with the respective db primary keys
+db_genre = session.query(Genre).all()
+GENRE = {i.name: i.id for i in db_genre}
+
 
 class CSVFactory:
     """
@@ -62,6 +70,7 @@ def quotewrap(target, char):
     """
     return ''.join([char, target, char])
 
+
 # Creates a csv with all records
 @app.route('/book/getall/<string:filetype>', methods=['GET'])
 def getall(filetype):
@@ -74,6 +83,26 @@ def getall(filetype):
         fname = XMLFactory.make_file(data)
 
     return make_response((fname))
+
+
+# Attempts to guess the genre of a book
+@app.route('/book/genre/<int:bookid>/', methods=['GET'])
+def genre(bookid):
+    book = session.query(Book).filter(Book.id == bookid).one()
+
+    features = langtools.extract_featureset(book.name)
+    genre_scoreboard = langtools.assign_genre(features)
+    print(genre_scoreboard)
+    tags = (GENRE[k] for k, v in genre_scoreboard.items() if v >= THRESHOLD)
+
+    for tag in tags:
+        book_genre = BookGenreXref(bookid=book.id, genreid=tag)
+        session.add(book_genre)
+
+    session.commit()
+
+    print(book_genre.id)
+    return make_response()
 
 
 if __name__ == '__main__':
