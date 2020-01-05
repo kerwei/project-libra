@@ -89,26 +89,22 @@ def assign_genre(featureset):
     features_synset = {wn.synsets(word, pos)[0] for word, pos in flatten_features if wn.synsets(word, pos)}
 
     # Init scoreboard
-    _scoreboard = defaultdict(int)
+    scoreboard = defaultdict(int)
     for genre, gobj in GENRE.items():
         # If there are common synsets between the genre and feature, apply the genre
         if features_synset.intersection(gobj.flat_attrib):
-            _scoreboard[genre] = 1
+            scoreboard[genre] = 1
             continue
 
         # Otherwise, calculate the max path_similarity score between each feature and each synset of the genre
-        _maxscore = float('-inf')
+        maxscore = float('-inf')
         for feat, gattrib in product(features_synset, gobj.flat_attrib):
+            # Path_similarity has no return value when comparing different POS (possibly)
             score = feat.path_similarity(gattrib)
     
             if score:
-                _maxscore = max([_maxscore, score])
+                maxscore = max([maxscore, score])
 
-        _scoreboard[genre] = _maxscore
+        scoreboard[genre] = maxscore
 
-    return _scoreboard
-
-
-if __name__ == '__main__':
-    GENRE = create_all_genre()
-    import pdb; pdb.set_trace()
+    return scoreboard
