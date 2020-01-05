@@ -7,7 +7,7 @@ from flask import request, jsonify, make_response
 from sqlalchemy import create_engine, desc, text
 from sqlalchemy.orm import sessionmaker
 
-from database_setup import Base, Book
+from database_setup import Base, Book, Genre, BookGenreXref
 
 
 # DB
@@ -53,7 +53,7 @@ class XMLFactory(CSVFactory):
     """
     class File:
         def __init__(self, data):
-            pass
+            raise NotImplementedError
 
 
 def quotewrap(target, char):
@@ -62,7 +62,7 @@ def quotewrap(target, char):
     """
     return ''.join([char, target, char])
 
-# Adds a customer
+# Creates a csv with all records
 @app.route('/book/getall/<string:filetype>', methods=['GET'])
 def getall(filetype):
     books = session.query(Book).order_by(Book.updated_at.asc()).all()
@@ -71,7 +71,7 @@ def getall(filetype):
     if filetype == 'csv':
         fname = CSVFactory.make_file(data)
     elif filetype == 'xml':
-        XMLFactory.make_file(data)
+        fname = XMLFactory.make_file(data)
 
     return make_response((fname))
 
