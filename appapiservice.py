@@ -92,7 +92,7 @@ def genre(bookid):
 
     features = langtools.extract_featureset(book.name)
     genre_scoreboard = langtools.assign_genre(features)
-    print(genre_scoreboard)
+
     tags = (GENRE[k] for k, v in genre_scoreboard.items() if v >= THRESHOLD)
 
     for tag in tags:
@@ -101,7 +101,6 @@ def genre(bookid):
 
     session.commit()
 
-    print(book_genre.id)
     return make_response()
 
 
